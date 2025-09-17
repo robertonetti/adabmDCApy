@@ -211,6 +211,7 @@ def load_params_oldformat(
     device: torch.device,
     dtype: torch.dtype = torch.float32,
 ) -> Dict[str, torch.Tensor]:
+
     """Import the parameters of the model from a file. Assumes the old DCA format.
 
     Args:

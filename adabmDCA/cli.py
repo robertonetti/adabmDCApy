@@ -30,6 +30,12 @@ def main():
             SCRIPT = "td_integration.py"
         case "reintegrate":
             SCRIPT = "reintegrate.py"
+        case "importance":
+            SCRIPT = "importance_sample.py"
+        case "entropy_distance":
+            SCRIPT = "distance_entropy_routine.py"
+        case "entropy_distance_closest_natural":
+            SCRIPT = "distance_entropy_closest_natural_routine.py"
         case _:
             print(f"Error: Invalid command '{COMMAND}'. Use 'train', 'sample', 'contacts', 'energies', 'reintegrate' or 'DMS'.")
             sys.exit(1)

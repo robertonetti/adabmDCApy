@@ -157,3 +157,59 @@ def add_args_reintegration(parser : argparse.ArgumentParser) -> argparse.Argumen
     parser.add_argument("--lambda_", type=float,    required=True,  help="Lambda parameter for the reintegration.")
 
     return parser
+
+
+
+def add_args_importance_sample(parser : argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser.add_argument("-p", "--path_params",  type=Path,   required=True,      help="Path to the file containing the parameters of DCA model to sample from.")
+    parser.add_argument("-d", "--data",         type=Path,   required=True,      help="Path to the file containing the data to sample from.")
+    parser.add_argument("-o", "--output",       type=Path,   required=True,      help="Path to the folder where to save the output.")
+    parser.add_argument("--ngen",               type=int,    required=True,      help="Number of sequences to be generated.") 
+    parser.add_argument("--target_path",        type=Path,   required=True,      help="") 
+
+    
+    # Optional arguments
+    parser.add_argument("-l", "--label",        type=str,    default="sampling", help="(Defaults to 'sampling'). Label to be used for the output files.")
+    parser.add_argument("--nsweeps",            type=int,    default=1000,       help="(Defaults to 1000). Maximum number of chain updates.")
+    parser.add_argument("--alphabet",           type=str,    default="protein",  help="(Defaults to protein). Type of encoding for the sequences. Choose among ['protein', 'rna', 'dna'] or a user-defined string of tokens.")
+    parser.add_argument("--beta",               type=float,  default=1.0,        help="(Defaults to 1.0). Inverse temperature for the sampling.")
+    parser.add_argument("--pseudocount",        type=float,  default=None,       help="(Defaults to None). Pseudocount for the single and two points statistics used during the training. If None, 1/Meff is used.")
+    parser.add_argument("--device",             type=str,    default="cuda",     help="(Defaults to cuda). Device to perform computations on.")
+    parser.add_argument("--dtype",              type=str,    default="float32",  help="(Defaults to float32). Data type to be used.")
+    parser.add_argument("--target_path2",       type=Path,   default=None,       help="") 
+    parser.add_argument("--distance",           type=int,    default=None,       help="") 
+    parser.add_argument("--distance2",          type=int,    default=None,       help="") 
+    parser.add_argument("--steps",              type=int,    default=100,        help="") 
+    parser.add_argument("--delta_gamma",        type=float,  default=0.5,        help="") 
+    parser.add_argument("--verbose",            action="store_true",             help="") 
+
+    parser = add_args_reweighting(parser)
+    
+    return parser
+
+
+def add_args_entropy_closest_natural(parser : argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser.add_argument("-p", "--path_params",  type=Path,   required=True,      help="Path to the file containing the parameters of DCA model to sample from.")
+    parser.add_argument("-d", "--data",         type=Path,   required=True,      help="Path to the file containing the data to sample from.")
+    parser.add_argument("-o", "--output",       type=Path,   required=True,      help="Path to the folder where to save the output.")
+    parser.add_argument("--ngen",               type=int,    required=True,      help="Number of sequences to be generated.") 
+    parser.add_argument("--entropy",            type=float,  required=True,      help="Number of sequences to be generated.") 
+    
+    # Optional arguments
+    parser.add_argument("-l", "--label",        type=str,    default="sampling", help="(Defaults to 'sampling'). Label to be used for the output files.")
+    parser.add_argument("--nsweeps",            type=int,    default=1000,       help="(Defaults to 1000). Maximum number of chain updates.")
+    parser.add_argument("--alphabet",           type=str,    default="protein",  help="(Defaults to protein). Type of encoding for the sequences. Choose among ['protein', 'rna', 'dna'] or a user-defined string of tokens.")
+    parser.add_argument("--beta",               type=float,  default=1.0,        help="(Defaults to 1.0). Inverse temperature for the sampling.")
+    parser.add_argument("--pseudocount",        type=float,  default=None,       help="(Defaults to None). Pseudocount for the single and two points statistics used during the training. If None, 1/Meff is used.")
+    parser.add_argument("--device",             type=str,    default="cuda",     help="(Defaults to cuda). Device to perform computations on.")
+    parser.add_argument("--dtype",              type=str,    default="float32",  help="(Defaults to float32). Data type to be used.")
+    parser.add_argument("--steps",              type=int,    default=100,        help="") 
+    parser.add_argument("--delta_theta",        type=float,  default=0.5,        help="") 
+    parser.add_argument("--threshold",          type=float,  default=0.1,        help="") 
+    parser.add_argument("--verbose",            action="store_true",             help="") 
+    parser.add_argument("--target_path",         type=Path,       help="Path to the file containing the data to sample from.")
+
+
+    parser = add_args_reweighting(parser)
+    
+    return parser

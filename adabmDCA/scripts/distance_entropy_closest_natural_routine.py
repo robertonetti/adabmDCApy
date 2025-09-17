@@ -60,15 +60,43 @@ def _get_deltaE(
         
         return E_new - E_old
 
-import torch
-from typing import Dict
-
-# ====================================================
-# Funzioni Metropolis su sequenze target (veloci)
-# ====================================================
-
 
 def _metropolis_sweep_target_seqs_fast(
+    chains: torch.Tensor,
+    params: Dict[str, torch.Tensor],
+    target_seqs: torch.Tensor,
+    theta: float,
+    distance: int,
+    beta: float,
+) -> torch.Tensor:
+    N, L, q = chains.shape
+    residue_idxs = torch.randperm(L, device=chains.device)
+    distance_old = compute_min_distance(chains, target_seqs)  # (N,)
+
+    for i in residue_idxs:
+        res_old = chains[:, i, :]  # (N, q)
+        res_new = one_hot_torch(
+            torch.randint(0, q, (N,), device=chains.device), num_classes=q
+        ).float()
+
+        # calcola distance_new senza modificare chains
+        chains_i_old = chains[:, i, :].clone()
+        chains[:, i, :] = res_new
+        distance_new = compute_min_distance(chains, target_seqs)
+        chains[:, i, :] = chains_i_old  # ripristina subito
+
+        delta_seqID = torch.abs(distance_new - distance) - torch.abs(distance_old - distance)
+        delta_E = _get_deltaE(i, chains, res_old, res_new, params, L, q)
+
+        accept_prob = torch.exp(-beta * delta_E - theta * delta_seqID).unsqueeze(-1)
+        r = torch.rand((N, 1), device=chains.device, dtype=chains.dtype)
+
+        chains[:, i, :] = torch.where(accept_prob > r, res_new, res_old)
+        distance_old = torch.where(accept_prob.squeeze(-1) > r.squeeze(-1), distance_new, distance_old)
+
+    return chains
+
+def _metropolis_sweep_target_seqs_fast1(
     chains: torch.Tensor,
     params: Dict[str, torch.Tensor],
     target_seqs: torch.Tensor,
@@ -85,15 +113,15 @@ def _metropolis_sweep_target_seqs_fast(
         res_old = chains[:, i, :]
         res_new = one_hot_torch(torch.randint(0, q, (N,), device=chains.device), num_classes=q).float()
 
-        # chains_sub = chains.clone()
-        # chains_sub[:, i, :] = res_new
+        chains_sub = chains.clone()
+        chains_sub[:, i, :] = res_new
         
-        chains[:, i, :] = res_new
+        # chains[:, i, :] = res_new
 
-        distance_new = compute_min_distance(chains, target_seqs) #distance_new = compute_min_distance(chains_sub, target_seqs) # (N, M)
+        distance_new = compute_min_distance(chains_sub, target_seqs) # (N, M) distance_new = compute_min_distance(chains, target_seqs) #
         delta_seqID = torch.abs(distance_new - distance) - torch.abs(distance_old - distance)
 
-        chains[:, i, :] = res_old
+        # chains[:, i, :] = res_old
 
         delta_E = _get_deltaE(i, chains, res_old, res_new, params, L, q) #delta_E = _get_deltaE(i, chains, res_old, res_new, params, L, q)
         accept_prob = torch.exp(- beta * delta_E - theta * delta_seqID).unsqueeze(-1)

@@ -380,7 +380,6 @@ def main():
         f.flush()
 
         # Sample with theta = 0
-        args.n0 = 100_000
         if args.target_path is not None: 
             _, samples_0 = import_from_fasta(args.target_path, tokens=tokens, filter_sequences=True)
             samples_0 = one_hot(torch.tensor(samples_0), num_classes=len(tokens)).to(device=device, dtype=dtype).squeeze(0)[:args.n0, :, :]

@@ -206,9 +206,9 @@ def add_args_entropy_closest_natural(parser : argparse.ArgumentParser) -> argpar
     parser.add_argument("--steps",              type=int,    default=100,        help="") 
     parser.add_argument("--delta_theta",        type=float,  default=0.5,        help="") 
     parser.add_argument("--threshold",          type=float,  default=0.1,        help="") 
+    parser.add_argument("--n0",                 type=float,  default=100_000,    help="") 
+    parser.add_argument("--target_path",        type=Path,                       help="Path to the file containing the data to sample from.")
     parser.add_argument("--verbose",            action="store_true",             help="") 
-    parser.add_argument("--target_path",         type=Path,       help="Path to the file containing the data to sample from.")
-
 
     parser = add_args_reweighting(parser)
     

@@ -329,9 +329,9 @@ def main():
     folder.mkdir(parents=True, exist_ok=True)
 
     with open(folder / "log.txt", "w") as f:
-    
         print("\n" + "".join(["*"] * 10) + f" Sampling from DCA model " + "".join(["*"] * 10) + "\n")
         f.write("\n" + "".join(["*"] * 10) + f" Sampling from DCA model " + "".join(["*"] * 10) + "\n")
+        
         # Set the device
         device = get_device(args.device)
         dtype = get_dtype(args.dtype)
@@ -380,15 +380,15 @@ def main():
         f.flush()
 
         # Sample with theta = 0
-        n0 = 100_000
+        args.n0 = 100_000
         if args.target_path is not None: 
             _, samples_0 = import_from_fasta(args.target_path, tokens=tokens, filter_sequences=True)
-            samples_0 = one_hot(torch.tensor(samples_0), num_classes=len(tokens)).to(device=device, dtype=dtype).squeeze(0)[:n0, :, :]
+            samples_0 = one_hot(torch.tensor(samples_0), num_classes=len(tokens)).to(device=device, dtype=dtype).squeeze(0)[:args.n0, :, :]
         else: 
             print("\nSTEP 0: sample until equilibrium with gamma=0...\n")   
             f.write("\nSTEP 0: sample until equilibrium with gamma=0...\n"), f.flush()
             sampler_0 = get_sampler("gibbs")
-            samples_0 = init_chains(num_chains=n0, L=L, q=q, device=device, dtype=dtype)
+            samples_0 = init_chains(num_chains=args.n0, L=L, q=q, device=device, dtype=dtype)
             samples_0 = sampler_0(chains=samples_0, params=params, nsweeps=10_000,  beta=args.beta)
 
         samples = init_chains(
@@ -407,15 +407,15 @@ def main():
         f.flush()
         
         distance = compute_min_distance(samples_0, data) 
-        hist = torch.bincount(distance.to(torch.int64), minlength=L+1) / n0
-        for i, count in enumerate(hist):
+        hist = torch.bincount(distance.to(torch.int64), minlength=L+1) / args.n0
+        for i, d in enumerate(hist):
             if args.verbose:
-                print(f"Percentage of sequences with distance {i}: {hist[i].item() * 100:.2f}%\n" )
-            f.write(  f"Percentage of sequences with distance {i}: {hist[i].item() * 100:.2f}%\n" )
+                print(f"Percentage of sequences with distance {i}: {d.item() * 100:.2f}%\n" )
+            f.write(  f"Percentage of sequences with distance {i}: {d.item() * 100:.2f}%\n" )
         f.flush()
 
-        idx = torch.where(hist > 0.03)[0].cpu()
-        max_distance = idx.max().item()
+        idx = torch.where(hist >= 0.03)[0].cpu()
+        max_distance = idx.min().item()
         fraction_max_d = hist[max_distance] 
 
         energies_all = compute_energy(samples_0, params=params)

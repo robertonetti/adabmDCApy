@@ -793,7 +793,7 @@ def main_idependent_new():
                 energies_i_d1 = compute_energy(seqs_i[dist_i == d + 1], params=params) + theta[n * i + 1]
                 mean_energy_i_d1 = energies_i_d1.mean().item()
                 logP = torch.log(hist[i, d + 1]).item()
-                S_seq[i] = lnZ + mean_energy + logP
+                S_seq[i] = lnZ + mean_energy_i_d1 + logP
                 S_tot[d + 1] += p_data[i] * S_seq[i]
 
             # ----------------------------

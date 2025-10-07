@@ -17,6 +17,8 @@ from adabmDCA.statmech import compute_energy
 from adabmDCA.stats import get_freq_single_point, get_freq_two_points, get_correlation_two_points
 from adabmDCA.parser import add_args_sample
 
+import torch
+
 
 # import command-line input arguments
 def create_parser():
@@ -127,8 +129,9 @@ def main():
     for i in range(args.nmix * mixing_time):
         pbar.update(1)
         samples = sampler(chains=samples, params=params, nsweeps=1, beta=args.beta)
-        pi = get_freq_single_point(data=samples, weights=None, pseudo_count=0.)
-        pij = get_freq_two_points(data=samples, weights=None, pseudo_count=0.)
+        sub_sample = samples[torch.randperm(args.ngen)[:10_000]]  
+        pi = get_freq_single_point(data=sub_sample, weights=None, pseudo_count=0.)
+        pij = get_freq_two_points(data=sub_sample, weights=None, pseudo_count=0.)
         pearson, slope = get_correlation_two_points(fi=fi, pi=pi, fij=fij, pij=pij)
         results_sampling["nsweeps"].append(i)
         results_sampling["pearson"].append(pearson)

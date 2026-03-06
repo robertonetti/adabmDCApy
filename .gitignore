@@ -167,3 +167,14 @@ notebooks/
 Pipfile
 Pipfile.lock
 wandb/
+
+# Project-specific files and directories
+Chorismate_Mutase/
+DMS/
+compute_entropy_from_closest_natural/
+example_data/CM_130530_MC.fasta
+experiment.pdf
+experiment_figure.ipynb
+experiment_result/
+images_entropy.ipynb
+images_paper_Rama/
